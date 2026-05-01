@@ -13,29 +13,38 @@
             color: #222;
         }
 
-        /* NAV */
         nav {
             background: #1f73e8;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            min-width: 0;
+        }
+
+        .nav-brand img {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 auto;
         }
 
         .nav-brand h1 {
             color: white;
             font-size: 1.4rem;
+            white-space: nowrap;
         }
 
         .nav-links {
             display: flex;
             gap: 1rem;
+            flex: 0 0 auto;
         }
 
         .nav-links a {
@@ -44,6 +53,8 @@
             font-size: 0.95rem;
             text-decoration: none;
             font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .btn-login {
@@ -65,7 +76,6 @@
             background: #0f4a9c;
         }
 
-        /* HERO */
         .hero {
             background: linear-gradient(135deg, #1f73e8, #155db5);
             color: white;
@@ -76,6 +86,7 @@
         .hero h2 {
             font-size: 2.8rem;
             margin-bottom: 1rem;
+            line-height: 1.15;
         }
 
         .hero p {
@@ -101,30 +112,34 @@
             background: #e8eefc;
         }
 
-        /* COURSES */
         .courses-section {
             max-width: 1100px;
             margin: 4rem auto;
             padding: 0 2rem;
         }
 
-        .courses-section h2 {
+        .courses-section h2,
+        .why-section h2,
+        .cta-section h2 {
             font-size: 2rem;
             text-align: center;
             margin-bottom: 0.5rem;
             color: #1f73e8;
+            line-height: 1.2;
         }
 
-        .courses-section .subtitle {
+        .courses-section .subtitle,
+        .why-section .subtitle {
             text-align: center;
             color: #666;
             margin-bottom: 2.5rem;
             font-size: 1rem;
+            line-height: 1.5;
         }
 
         .courses-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
         }
 
@@ -146,6 +161,8 @@
             font-size: 1.2rem;
             margin-bottom: 0.6rem;
             color: #1a1a1a;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
         }
 
         .course-card p {
@@ -153,6 +170,7 @@
             color: #666;
             line-height: 1.6;
             margin-bottom: 1.2rem;
+            overflow-wrap: anywhere;
         }
 
         .course-meta {
@@ -182,6 +200,7 @@
             font-size: 0.85rem;
             color: #555;
             margin-bottom: 1.2rem;
+            overflow-wrap: anywhere;
         }
 
         .course-instructor span {
@@ -206,22 +225,10 @@
             background: #155db5;
         }
 
-        /* WHY JOIN */
         .why-section {
             background: white;
             padding: 4rem 2rem;
             text-align: center;
-        }
-
-        .why-section h2 {
-            font-size: 2rem;
-            color: #1f73e8;
-            margin-bottom: 0.5rem;
-        }
-
-        .why-section .subtitle {
-            color: #666;
-            margin-bottom: 2.5rem;
         }
 
         .why-grid {
@@ -247,6 +254,7 @@
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
             color: #1a1a1a;
+            line-height: 1.3;
         }
 
         .why-card p {
@@ -255,7 +263,6 @@
             line-height: 1.5;
         }
 
-        /* CTA */
         .cta-section {
             background: linear-gradient(135deg, #1f73e8, #155db5);
             color: white;
@@ -264,14 +271,14 @@
         }
 
         .cta-section h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            color: white;
         }
 
         .cta-section p {
             opacity: 0.9;
             margin-bottom: 2rem;
             font-size: 1rem;
+            line-height: 1.5;
         }
 
         .cta-section a {
@@ -289,7 +296,6 @@
             background: #e8eefc;
         }
 
-        /* FOOTER */
         footer {
             background: #1a1a1a;
             color: #aaa;
@@ -298,10 +304,124 @@
             font-size: 0.85rem;
         }
 
-        /* MOBILE */
-        @media(max-width: 600px) {
-            .hero h2 { font-size: 1.8rem; }
-            .courses-grid { grid-template-columns: 1fr; }
+        @media(max-width: 768px) {
+            nav {
+                padding: 1rem;
+                align-items: flex-start;
+            }
+
+            .nav-brand h1 {
+                font-size: 1.15rem;
+            }
+
+            .nav-links {
+                gap: 0.5rem;
+            }
+
+            .nav-links a {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .hero {
+                padding: 3.5rem 1rem;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+            }
+
+            .courses-section {
+                margin: 2.5rem auto;
+                padding: 0 1rem;
+            }
+
+            .courses-section h2,
+            .why-section h2,
+            .cta-section h2 {
+                font-size: 1.6rem;
+            }
+
+            .courses-section .subtitle,
+            .why-section .subtitle {
+                margin-bottom: 1.6rem;
+            }
+
+            .courses-grid,
+            .why-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .course-card,
+            .why-card {
+                padding: 1.25rem;
+                border-radius: 12px;
+            }
+
+            .course-card:hover {
+                transform: none;
+            }
+
+            .course-price {
+                font-size: 1.15rem;
+            }
+
+            .why-section,
+            .cta-section {
+                padding: 3rem 1rem;
+            }
+        }
+
+        @media(max-width: 480px) {
+            nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-brand {
+                justify-content: center;
+            }
+
+            .nav-brand img {
+                width: 34px;
+                height: 34px;
+            }
+
+            .nav-links {
+                width: 100%;
+            }
+
+            .nav-links a {
+                flex: 1;
+            }
+
+            .hero {
+                padding: 3rem 1rem;
+            }
+
+            .hero h2 {
+                font-size: 1.75rem;
+            }
+
+            .hero a,
+            .cta-section a {
+                width: 100%;
+                padding: 0.85rem 1rem;
+            }
+
+            .course-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .course-card a {
+                padding: 0.75rem;
+            }
         }
     </style>
 </head>
@@ -309,9 +429,10 @@
 
     <nav>
         <div class="nav-brand">
-            <img src="/image_laravel/logo.png" alt="logo" style="width:40px; height:40px;">
+            <img src="/image_laravel/logo.png" alt="logo">
             <h1>LearnFlow</h1>
         </div>
+
         <div class="nav-links">
             <a href="{{ route('login') }}" class="btn-login">Log In</a>
             <a href="{{ route('register') }}" class="btn-register">Sign Up</a>
@@ -333,13 +454,16 @@
                 <div class="course-card">
                     <h3>{{ $course->course_name }}</h3>
                     <p>{{ $course->description }}</p>
+
                     <div class="course-meta">
                         <span class="course-price">₱{{ number_format($course->price, 2) }}/mo</span>
                         <span class="course-slots">{{ $course->slot }} slots</span>
                     </div>
+
                     <div class="course-instructor">
                         Instructor: <span>{{ $course->staff->user->name }}</span>
                     </div>
+
                     <a href="{{ route('register') }}">Enroll Now</a>
                 </div>
             @empty
@@ -351,22 +475,26 @@
     <div class="why-section">
         <h2>Why Join Us?</h2>
         <p class="subtitle">Everything you need to level up.</p>
+
         <div class="why-grid">
             <div class="why-card">
                 <div class="icon">🎓</div>
                 <h3>Expert Instructors</h3>
                 <p>Learn from experienced professionals who are passionate about teaching.</p>
             </div>
+
             <div class="why-card">
                 <div class="icon">📅</div>
                 <h3>Flexible Membership</h3>
                 <p>Choose monthly or yearly plans that fit your schedule and budget.</p>
             </div>
+
             <div class="why-card">
                 <div class="icon">🚀</div>
                 <h3>Learn at Your Pace</h3>
                 <p>Access your enrolled courses anytime and progress at your own speed.</p>
             </div>
+
             <div class="why-card">
                 <div class="icon">🤝</div>
                 <h3>Community Support</h3>

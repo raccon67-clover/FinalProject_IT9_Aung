@@ -3,6 +3,238 @@
         <h2>Courses</h2>
     </x-slot>
 
+    <style>
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border-top: 4px solid #1f73e8;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .course-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.2rem;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .course-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1f73e8;
+        }
+
+        .course-slots {
+            font-size: 0.85rem;
+            color: #888;
+            background: #f4f6f9;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+        }
+
+        .course-instructor {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-box {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+
+        .status-pending {
+            background: #fff8e1;
+        }
+
+        .status-approved {
+            background: #e8f4fd;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+
+        .btn-primary,
+        .btn-outline,
+        .btn-danger,
+        .btn-disabled {
+            display: inline-block;
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #1f73e8;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #155db5;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #1f73e8;
+            border: 1px solid #1f73e8;
+        }
+
+        .btn-danger {
+            background: white;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .btn-disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            border: none;
+            cursor: not-allowed;
+        }
+
+        .enroll-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 460px;
+            position: relative;
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #888;
+            padding: 0;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .courses-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .course-card {
+                padding: 1.2rem;
+                border-radius: 12px;
+            }
+
+            .course-title {
+                font-size: 1.05rem;
+            }
+
+            .course-description {
+                font-size: 0.86rem;
+            }
+
+            .course-price {
+                font-size: 1.15rem;
+            }
+
+            .course-meta {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .course-actions {
+                flex-direction: column;
+            }
+
+            .course-actions a {
+                width: 100%;
+            }
+
+            .plan-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-card {
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .course-card {
+                padding: 1rem;
+            }
+
+            .status-box {
+                padding: 0.85rem;
+            }
+
+            .btn-primary,
+            .btn-outline,
+            .btn-danger,
+            .btn-disabled {
+                font-size: 0.85rem;
+                padding: 0.65rem;
+            }
+        }
+    </style>
+
     @if(session('success'))
         <div style="background:#e9f9ee; color:#1f8b43; padding:1rem; border-radius:8px; margin-bottom:1.5rem; font-weight:bold;">
             {{ session('success') }}
@@ -25,7 +257,7 @@
         </div>
     @endif
 
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:1.5rem;">
+    <div class="courses-grid">
         @forelse($courses as $course)
             @php
                 $enrollment = Auth::user()->enrollments
@@ -34,27 +266,23 @@
                     ->first();
             @endphp
 
-            <div style="background:white; border-radius:14px; padding:2rem; box-shadow:0 4px 12px rgba(0,0,0,0.06); border-top:4px solid #1f73e8; display:flex; flex-direction:column; justify-content:space-between;">
+            <div class="course-card">
                 <div>
-                    <h3 style="font-size:1.2rem; font-weight:bold; margin-bottom:0.5rem; color:#1a1a1a;">
-                        {{ $course->course_name }}
-                    </h3>
+                    <h3 class="course-title">{{ $course->course_name }}</h3>
 
-                    <p style="font-size:0.9rem; color:#666; line-height:1.6; margin-bottom:1.2rem;">
-                        {{ $course->description }}
-                    </p>
+                    <p class="course-description">{{ $course->description }}</p>
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; flex-wrap:wrap; gap:0.5rem;">
-                        <span style="font-size:1.4rem; font-weight:bold; color:#1f73e8;">
+                    <div class="course-meta">
+                        <span class="course-price">
                             ₱{{ number_format($course->price, 2) }}/mo
                         </span>
 
-                        <span style="font-size:0.85rem; color:#888; background:#f4f6f9; padding:0.3rem 0.7rem; border-radius:20px;">
+                        <span class="course-slots">
                             {{ $course->slot - $course->enrollments_count }} slots left
                         </span>
                     </div>
 
-                    <p style="font-size:0.85rem; color:#555; margin-bottom:1.5rem;">
+                    <p class="course-instructor">
                         Instructor:
                         <strong style="color:#1f73e8;">{{ $course->staff->user->name }}</strong>
                     </p>
@@ -63,8 +291,8 @@
                 <div>
                     @if($enrollment)
                         @if($enrollment->status === 'pending')
-                            <div style="background:#fff8e1; border-radius:8px; padding:1rem; text-align:center; margin-bottom:0.8rem;">
-                                <p style="color:#f0ad4e; font-weight:bold;">⏳ Awaiting Staff Approval</p>
+                            <div class="status-box status-pending">
+                                <p style="color:#f0ad4e; font-weight:bold;">Awaiting Staff Approval</p>
                                 <p style="color:#888; font-size:0.8rem; margin-top:0.2rem;">
                                     Payment received. A staff member will approve your enrollment shortly.
                                 </p>
@@ -75,46 +303,39 @@
                                 @method('DELETE')
 
                                 <button type="submit"
-                                    style="width:100%; padding:0.7rem; background:white; color:#dc3545; border:1px solid #dc3545; border-radius:8px; cursor:pointer; font-weight:bold;"
+                                    class="btn-danger"
                                     onclick="return confirm('Cancel this enrollment request?')">
                                     Cancel Request
                                 </button>
                             </form>
-                            
-                    @elseif($enrollment->status === 'approved')
-                    <div style="background:#e8f4fd; border-radius:8px; padding:1rem; margin-bottom:0.8rem; text-align:center;">
-                        <p style="color:#1f73e8; font-weight:bold;">✓ Enrolled</p>
+                        @elseif($enrollment->status === 'approved')
+                            <div class="status-box status-approved">
+                                <p style="color:#1f73e8; font-weight:bold;">Enrolled</p>
 
-                        <p style="color:#888; font-size:0.8rem; margin-top:0.2rem;">
-                            Expires {{ $enrollment->expires_at->format('M d, Y') }}
-                        </p>
+                                <p style="color:#888; font-size:0.8rem; margin-top:0.2rem;">
+                                    Expires {{ $enrollment->expires_at->format('M d, Y') }}
+                                </p>
 
-                        <div style="display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap; margin-top:0.8rem;">
-                            <a href="{{ route('member.learnings') }}"
-                                style="display:inline-block; padding:0.55rem 0.8rem; background:#1f73e8; color:white; border-radius:8px; font-weight:bold; text-decoration:none; font-size:0.85rem;">
-                                My Learnings
-                            </a>
+                                <div class="course-actions">
+                                    <a href="{{ route('member.learnings') }}" class="btn-primary">
+                                        My Learnings
+                                    </a>
 
-                            <a href="{{ route('enrollment.receipt', $enrollment->id) }}"
-                                style="display:inline-block; padding:0.55rem 0.8rem; background:white; color:#1f73e8; border:1px solid #1f73e8; border-radius:8px; font-weight:bold; text-decoration:none; font-size:0.85rem;">
-                                View Receipt
-                            </a>
-
-                        </div>
-                    </div>
-                @endif
-
+                                    <a href="{{ route('enrollment.receipt', $enrollment->id) }}" class="btn-outline">
+                                        View Receipt
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                     @else
                         @if($course->slot - $course->enrollments_count > 0)
                             <button onclick="openModal({{ $course->id }}, '{{ addslashes($course->course_name) }}', {{ $course->price }})"
-                                style="width:100%; padding:0.7rem; background:#1f73e8; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem;"
-                                onmouseover="this.style.background='#155db5'"
-                                onmouseout="this.style.background='#1f73e8'">
+                                class="btn-primary">
                                 Enroll Now
                             </button>
                         @else
-                            <button disabled style="width:100%; padding:0.7rem; background:#e5e7eb; color:#9ca3af; border:none; border-radius:8px; font-weight:bold; font-size:0.9rem; cursor:not-allowed;">
-                                Full — No Slots Available
+                            <button disabled class="btn-disabled">
+                                Full - No Slots Available
                             </button>
                         @endif
                     @endif
@@ -127,9 +348,9 @@
         @endforelse
     </div>
 
-    <div id="enrollModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:white; border-radius:16px; width:100%; max-width:460px; margin:1rem; position:relative;">
-            <button onclick="closeModal()" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.4rem; cursor:pointer; color:#888; padding:0; z-index:1;">✕</button>
+    <div id="enrollModal" class="enroll-modal">
+        <div class="modal-card">
+            <button onclick="closeModal()" class="modal-close">x</button>
 
             <h3 style="font-size:1.2rem; font-weight:bold; margin:0; padding:1.5rem 2rem 0;" id="modalCourseName"></h3>
             <p style="font-size:0.85rem; color:#888; padding:0.3rem 2rem 1.2rem;">Choose your plan to continue.</p>
@@ -139,7 +360,8 @@
 
                 <div style="margin-bottom:1.2rem;">
                     <label style="font-size:0.85rem; font-weight:bold; color:#333; display:block; margin-bottom:0.5rem;">Select Plan</label>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
+
+                    <div class="plan-grid">
                         <label id="monthlyLabel" onclick="setPlan('monthly')"
                             style="border:2px solid #1f73e8; border-radius:8px; padding:1rem; cursor:pointer; text-align:center; background:#e8f4fd;">
                             <input type="radio" name="type" value="monthly" checked style="display:none;">
@@ -163,14 +385,13 @@
                 </div>
 
                 <div style="background:#f0f7ff; border:1px solid #bee3f8; border-radius:8px; padding:0.8rem 1rem; margin-bottom:1.5rem;">
-                    <p style="font-size:0.82rem; color:#1f73e8; font-weight:bold; margin:0 0 0.3rem;">💳 Accepted Payment Methods</p>
-                    <p style="font-size:0.8rem; color:#555; margin:0;">GCash · Maya · Credit/Debit Card · Online Banking</p>
+                    <p style="font-size:0.82rem; color:#1f73e8; font-weight:bold; margin:0 0 0.3rem;">Accepted Payment Methods</p>
+                    <p style="font-size:0.8rem; color:#555; margin:0;">GCash, Maya, Credit/Debit Card, Online Banking</p>
                     <p style="font-size:0.75rem; color:#888; margin:0.4rem 0 0;">You will be redirected to a secure payment page.</p>
                 </div>
 
-                <button type="submit" id="payBtn"
-                    style="width:100%; padding:0.85rem; background:#1f73e8; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1rem;">
-                    🔒 Pay Now
+                <button type="submit" id="payBtn" class="btn-primary">
+                    Pay Now
                 </button>
             </form>
         </div>
