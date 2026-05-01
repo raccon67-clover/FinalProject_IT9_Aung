@@ -1,6 +1,5 @@
 FROM php:8.4-apache
 
-# Install system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -13,52 +12,34 @@ RUN apt-get update && apt-get install -y \
     zip \
     nodejs \
     npm \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip mbstring xml \
+    && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache rewrite
 RUN a2enmod rewrite
 
-# Make Apache use port 10000
 RUN sed -i 's/Listen 80/Listen 10000/g' /etc/apache2/ports.conf && \
     sed -i 's/<VirtualHost \*:80>/<VirtualHost *:10000>/g' /etc/apache2/sites-available/000-default.conf
 
-# Set Laravel public as document root
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
     sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/apache2.conf
 
-# Allow .htaccess for Laravel
 RUN printf '<Directory /var/www/html/public>\n\
 AllowOverride All\n\
 Require all granted\n\
 </Directory>\n' > /etc/apache2/conf-available/laravel.conf && \
     a2enconf laravel
 
-# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy Laravel app
 COPY . .
 
-# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install frontend dependencies
 RUN npm install && npm run build
 
-# Clear caches
-RUN php artisan config:clear && \
-    php artisan route:clear && \
-    php artisan view:clear
-
-# Create storage symlink
-RUN php artisan storage:link || true
-
-# Fix permissions
 RUN mkdir -p storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
@@ -67,11 +48,17 @@ RUN mkdir -p storage/framework/cache \
     chown -R www-data:www-data storage bootstrap/cache public/uploads && \
     chmod -R 775 storage bootstrap/cache public/uploads
 
-# Optional migrations
-RUN php artisan migrate --force || true
+RUN php artisan config:clear && \
+    php artisan route:clear && \
+    php artisan view:clear
 
-# Expose Render port
+RUN php artisan storage:link || true
+
 EXPOSE 10000
 
-# Start Apache
-CMD ["apache2-foreground"]
+CMD php artisan migrate --force && \
+    php artisan db:seed --class=AdminUserSeeder --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    apache2-foreground
