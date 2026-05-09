@@ -49,6 +49,10 @@ Route::get('/member/learnings', [MemberLearningController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('member.learnings');
 
+Route::patch('/member/enrollments/{enrollment}/request-unenroll', [EnrollmentController::class, 'requestUnenroll'])
+    ->middleware(['auth', 'verified'])
+    ->name('member.enrollments.request-unenroll');
+
 // Admin area routes
 Route::get('/admin', [StaffController::class, 'index'])->name('admin.index');
 Route::post('/admin/promote/{user}', [StaffController::class, 'promote'])->name('staff.promote');
@@ -99,6 +103,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/staff/courses/{course}/contents', [CourseContentController::class, 'store'])
         ->name('staff.course-contents.store');
 
+    Route::put('/staff/course-contents/{content}', [CourseContentController::class, 'update'])
+        ->name('staff.course-contents.update');
+
     Route::delete('/staff/course-contents/{content}', [CourseContentController::class, 'destroy'])
         ->name('staff.course-contents.destroy');
 });
@@ -108,11 +115,9 @@ Route::get('/enrollments/{enrollment}/receipt', [EnrollmentController::class, 'r
     ->name('enrollment.receipt')
     ->middleware('auth');
 
-
-//Course Content
+// Course Content
 Route::post('/member/learnings/content/{content}/complete', [MemberLearningController::class, 'complete'])
     ->middleware(['auth', 'verified'])
     ->name('member.learnings.complete');
-
 
 require __DIR__.'/auth.php';

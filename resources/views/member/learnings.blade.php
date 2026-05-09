@@ -70,7 +70,7 @@
 
                     <div style="background:#f8f9fc; border:1px solid #eee; border-radius:10px; padding:1rem; margin-bottom:0.8rem;">
                         <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start;">
-                            <div>
+                            <div style="flex:1; min-width:0; width:100%;">
                                 <h5 style="font-size:0.95rem; font-weight:bold; margin-bottom:0.4rem;">
                                     {{ $content->title }}
                                 </h5>
@@ -82,22 +82,46 @@
                                 @endif
 
                                 @if($content->video_url)
-                                    <a href="{{ $content->video_url }}" target="_blank"
-                                        style="display:inline-block; color:#1f73e8; font-weight:bold; text-decoration:none;">
-                                        Open Lesson
-                                    </a>
+                                    @php
+                                        $videoUrl = $content->video_url;
+                                        $embedUrl = null;
+
+                                        if (str_contains($videoUrl, 'youtube.com/watch')) {
+                                            parse_str(parse_url($videoUrl, PHP_URL_QUERY), $query);
+                                            $embedUrl = isset($query['v']) ? 'https://www.youtube.com/embed/' . $query['v'] : null;
+                                        } elseif (str_contains($videoUrl, 'youtu.be/')) {
+                                            $videoId = trim(parse_url($videoUrl, PHP_URL_PATH), '/');
+                                            $embedUrl = 'https://www.youtube.com/embed/' . $videoId;
+                                        } elseif (str_contains($videoUrl, 'youtube.com/embed/')) {
+                                            $embedUrl = $videoUrl;
+                                        }
+                                    @endphp
+
+                                    @if($embedUrl)
+                                        <div style="margin:0.8rem auto 0; width:100%; max-width:760px; aspect-ratio:16 / 9; background:#000; border-radius:10px; overflow:hidden;">
+                                            <iframe src="{{ $embedUrl }}" title="{{ $content->title }}"
+                                                style="width:100%; height:100%; border:0;"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                allowfullscreen></iframe>
+                                        </div>
+                                    @else
+                                        <a href="{{ $content->video_url }}" target="_blank"
+                                            style="display:inline-block; color:#1f73e8; font-weight:bold; text-decoration:none;">
+                                            Open Lesson
+                                        </a>
+                                    @endif
                                 @endif
                             </div>
 
                             @if($isCompleted)
-                                <span style="background:#e9f9ee; color:#1f8b43; padding:0.4rem 0.7rem; border-radius:20px; font-size:0.8rem; font-weight:bold;">
+                                <span style="background:#e9f9ee; color:#1f8b43; padding:0.4rem 0.7rem; border-radius:20px; font-size:0.8rem; font-weight:bold; white-space:nowrap;">
                                     Completed
                                 </span>
                             @else
                                 <form method="POST" action="{{ route('member.learnings.complete', $content->id) }}">
                                     @csrf
                                     <button type="submit"
-                                        style="background:#1f73e8; color:white; border:none; padding:0.5rem 0.8rem; border-radius:8px; cursor:pointer; font-weight:bold;">
+                                        style="background:#1f73e8; color:white; border:none; padding:0.5rem 0.8rem; border-radius:8px; cursor:pointer; font-weight:bold; white-space:nowrap;">
                                         Mark Complete
                                     </button>
                                 </form>
@@ -110,16 +134,22 @@
                     </p>
                 @endforelse
 
-                <form action="{{ route('enrollments.destroy', $enrollment->id) }}" method="POST" style="margin-top:1rem;">
-                    @csrf
-                    @method('DELETE')
+                @if($enrollment->status === 'unenroll_pending')
+                    <div style="margin-top:1rem; padding:0.8rem; background:#fff8e1; color:#b7791f; border-radius:8px; font-weight:bold; text-align:center;">
+                        Unenroll request pending staff approval
+                    </div>
+                @else
+                    <form action="{{ route('member.enrollments.request-unenroll', $enrollment->id) }}" method="POST" style="margin-top:1rem;">
+                        @csrf
+                        @method('PATCH')
 
-                    <button type="submit"
-                        style="width:100%; padding:0.7rem; background:white; color:#dc3545; border:1px solid #dc3545; border-radius:8px; cursor:pointer; font-weight:bold;"
-                        onclick="return confirm('Unenroll from this course?')">
-                        Unenroll
-                    </button>
-                </form>
+                        <button type="submit"
+                            style="width:100%; padding:0.7rem; background:white; color:#dc3545; border:1px solid #dc3545; border-radius:8px; cursor:pointer; font-weight:bold;"
+                            onclick="return confirm('Request to unenroll from this course?')">
+                            Request Unenroll
+                        </button>
+                    </form>
+                @endif
             </div>
         @empty
             <div style="text-align:center; padding:4rem; color:#888; background:white; border-radius:14px;">

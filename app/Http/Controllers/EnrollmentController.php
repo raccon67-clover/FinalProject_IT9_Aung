@@ -111,4 +111,18 @@ class EnrollmentController extends Controller
         $enrollment->load('course.staff.user', 'user');
         return view('receipt', compact('enrollment'));
     }
+
+    public function requestUnenroll(\App\Models\Enrollment $enrollment)
+    {
+        if ($enrollment->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $enrollment->update([
+            'status' => 'unenroll_pending',
+        ]);
+
+        return back()->with('success', 'Your unenroll request is now pending staff approval.');
+    }
+
 }
