@@ -7,7 +7,6 @@ use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-
 class StaffPanelController extends Controller
 {
     public function index()
@@ -19,13 +18,20 @@ class StaffPanelController extends Controller
         }
 
         $courses = Course::where('staff_id', $staff->id)
-            ->withCount('enrollments')
-            ->withSum('enrollments', 'amount_paid')
             ->with(['enrollments.user', 'contents'])
             ->get();
 
-        $totalEnrolled = $courses->sum('enrollments_count');
-        $totalEarned = $courses->sum('enrollments_sum_amount_paid');
+        $totalEnrolled = $courses->sum(function ($course) {
+            return $course->enrollments
+                ->whereIn('status', ['approved', 'unenroll_pending'])
+                ->count();
+        });
+
+        $totalEarned = $courses->sum(function ($course) {
+            return $course->enrollments
+                ->whereIn('status', ['approved', 'unenroll_pending'])
+                ->sum('amount_paid');
+        });
 
         return view('staff.index', compact('courses', 'totalEnrolled', 'totalEarned'));
     }
@@ -80,6 +86,4 @@ class StaffPanelController extends Controller
 
         return redirect()->route('staff.profile')->with('status', 'profile-updated');
     }
-
-
 }

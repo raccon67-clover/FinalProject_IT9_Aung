@@ -7,17 +7,24 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     public function up(): void
-{
-    Schema::table('enrollments', function (Blueprint $table) {
-        $table->string('payment_proof')->nullable();
-        $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-    });
-}
+    {
+        Schema::table('enrollments', function (Blueprint $table) {
+            $table->string('payment_proof')->nullable();
 
-public function down(): void
-{
-    Schema::table('enrollments', function (Blueprint $table) {
-        $table->dropColumn(['payment_proof', 'status']);
-    });
-}
+            $table->enum('status', [
+                'pending',
+                'approved',
+                'rejected',
+                'unenroll_pending',
+                'unenrolled',
+            ])->default('pending');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('enrollments', function (Blueprint $table) {
+            $table->dropColumn(['payment_proof', 'status']);
+        });
+    }
 };

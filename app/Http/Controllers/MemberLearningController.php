@@ -17,7 +17,7 @@ class MemberLearningController extends Controller
                 'course.contents.completedByUsers',
             ])
             ->where('user_id', auth()->id())
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'unenroll_pending'])
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('course', function ($courseQuery) use ($search) {
                     $courseQuery->where('course_name', 'like', '%' . $search . '%')
@@ -33,7 +33,7 @@ class MemberLearningController extends Controller
     {
         $isEnrolled = Enrollment::where('user_id', auth()->id())
             ->where('course_id', $content->course_id)
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'unenroll_pending'])
             ->exists();
 
         if (!$isEnrolled) {

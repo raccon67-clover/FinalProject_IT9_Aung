@@ -17,13 +17,13 @@ class EnrollmentController extends Controller
 
         $user = auth()->user();
 
-        // Check if already enrolled or pending
+        // Check if already enrolled, pending, or waiting for unenroll approval
         $existing = Enrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', ['pending', 'approved', 'unenroll_pending'])
             ->where(function ($q) {
                 $q->where('expires_at', '>', now())
-                ->orWhere('status', 'pending');
+                    ->orWhereIn('status', ['pending', 'unenroll_pending']);
             })
             ->first();
 
@@ -33,19 +33,19 @@ class EnrollmentController extends Controller
 
         // Check available slots
         $enrolled = Enrollment::where('course_id', $course->id)
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'unenroll_pending'])
             ->count();
 
         if ($enrolled >= $course->slot) {
             return back()->with('error', 'No slots available.');
         }
 
-        // Mock payment — skip PayMongo, go straight to success
         return redirect()->route('enrollments.payment.success', [
             'course' => $course->id,
             'type'   => $request->type,
         ]);
     }
+
     public function success(Request $request)
     {
         $user     = auth()->user();
@@ -56,7 +56,7 @@ class EnrollmentController extends Controller
         // Guard against duplicate on refresh
         $existing = Enrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', ['pending', 'approved', 'unenroll_pending'])
             ->first();
 
         if ($existing) {
@@ -66,7 +66,7 @@ class EnrollmentController extends Controller
 
         // Re-check slots
         $enrolled = Enrollment::where('course_id', $course->id)
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'unenroll_pending'])
             ->count();
 
         if ($enrolled >= $course->slot) {
@@ -93,12 +93,12 @@ class EnrollmentController extends Controller
 
     public function destroy(Enrollment $enrollment)
     {
-        // Only the owner can cancel
         if (auth()->id() !== $enrollment->user_id) {
             abort(403);
         }
 
         $enrollment->delete();
+
         return back()->with('success', 'Enrollment cancelled successfully.');
     }
 
@@ -109,13 +109,22 @@ class EnrollmentController extends Controller
         }
 
         $enrollment->load('course.staff.user', 'user');
+
         return view('receipt', compact('enrollment'));
     }
 
-    public function requestUnenroll(\App\Models\Enrollment $enrollment)
+    public function requestUnenroll(Enrollment $enrollment)
     {
         if ($enrollment->user_id !== auth()->id()) {
             abort(403);
+        }
+
+        if ($enrollment->status === 'unenroll_pending') {
+            return back()->with('error', 'Your unenroll request is already pending staff approval.');
+        }
+
+        if ($enrollment->status !== 'approved') {
+            return back()->with('error', 'Only approved enrollments can request unenrollment.');
         }
 
         $enrollment->update([
@@ -124,5 +133,4 @@ class EnrollmentController extends Controller
 
         return back()->with('success', 'Your unenroll request is now pending staff approval.');
     }
-
 }
